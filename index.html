@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>答案之书 · The Book of Answers</title>
+
+<!-- 复古手写体 + 衬线字体 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=IM+Fell+English:ital@0;1&family=Noto+Serif+SC:wght@300;400&family=Pinyon+Script&display=swap" rel="stylesheet">
+
+<style>
+/* ─── Reset ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:        #1c1108;
+  --ink-faded:  #4a3820;
+  --ink-ghost:  #8a7055;
+  --parchment:  #f2e8d5;
+  --parchment2: #ede0c4;
+  --parchment3: #e6d5b0;
+  --aged:       #d4c49a;
+  --gold:       #b8860b;
+  --gold-lt:    #d4a843;
+  --gold-glow:  rgba(184,134,11,0.55);
+  --spine-dark: #2a1a0a;
+  --spine-mid:  #4a2e14;
+  --cover:      #1e0f06;
+  --cover-lt:   #3a1f0d;
+  --bg1:        #0a0705;
+  --bg2:        #150e08;
+  --cream-glow: rgba(242,232,213,0.07);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  min-height: 100vh;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, #2a1a08 0%, #0d0803 55%, var(--bg1) 100%);
+  font-family: 'Cormorant Garamond', 'Noto Serif SC', Georgia, serif;
+  color: var(--parchment);
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ─── Ambient particles ─── */
+.ambient {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  overflow: hidden;
+}
+.ambient::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, rgba(255,220,130,0.55) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 88% 8%,  rgba(255,220,130,0.4)  0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 72%,  rgba(255,220,130,0.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 7%  85%,  rgba(255,220,130,0.5)  0%, transparent 100%),
+    radial-gradient(1px 1px at 93% 62%,  rgba(255,220,130,0.3)  0%, transparent 100%),
+    radial-gradient(1px 1px at 38% 10%,  rgba(255,220,130,0.5)  0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 90%,  rgba(255,220,130,0.4)  0%, transparent 100%),
+    radial-gradient(2px 2px at 22% 50%,  rgba(255,220,130,0.2)  0%, transparent 100%),
+    radial-gradient(1px 1px at 65% 35%,  rgba(255,220,130,0.45) 0%, transparent 100%),
+    radial-gradient(1px 1px at 45% 55%,  rgba(255,220,130,0.25) 0%, transparent 100%);
+}
+/* Candle glow top-center */
+.ambient::after {
+  content: '';
+  position: absolute;
+  top: -100px; left: 50%; transform: translateX(-50%);
+  width: 600px; height: 400px;
+  background: radial-gradient(ellipse, rgba(200,130,20,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ─── Header ─── */
+header {
+  position: relative; z-index: 10;
+  text-align: center;
+  padding: 56px 20px 8px;
+}
+
+.title-main {
+  font-family: 'Pinyon Script', cursive;
+  font-size: clamp(3rem, 8vw, 5.2rem);
+  color: var(--gold-lt);
+  text-shadow:
+    0 0 40px var(--gold-glow),
+    0 0 80px rgba(184,134,11,0.25);
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.title-sub {
+  font-family: 'IM Fell English', 'Cormorant Garamond', serif;
+  font-size: clamp(0.7rem, 2vw, 0.88rem);
+  letter-spacing: 0.5em;
+  color: rgba(184,134,11,0.55);
+  margin-top: 6px;
+  font-style: italic;
+  text-transform: uppercase;
+}
+
+.header-rule {
+  display: flex; align-items: center; gap: 12px;
+  margin: 14px auto 0;
+  max-width: 320px;
+}
+.header-rule::before, .header-rule::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(to right, transparent, rgba(184,134,11,0.4), transparent);
+}
+.header-rule span { color: rgba(184,134,11,0.5); font-size: 0.8rem; }
+
+/* ─── Question Section ─── */
+.question-section {
+  position: relative; z-index: 10;
+  width: 100%; max-width: 580px;
+  padding: 32px 20px 0;
+  text-align: center;
+}
+
+.q-label {
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: rgba(212,168,67,0.65);
+  letter-spacing: 0.15em;
+  margin-bottom: 14px;
+}
+
+.question-input {
+  width: 100%;
+  background: rgba(242,232,213,0.04);
+  border: none;
+  border-bottom: 1px solid rgba(184,134,11,0.35);
+  padding: 12px 4px;
+  color: var(--parchment);
+  font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+  font-size: 1.1rem;
+  font-style: italic;
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  background: transparent;
+  transition: border-color 0.4s;
+  text-align: center;
+}
+.question-input:focus { border-color: rgba(184,134,11,0.7); }
+.question-input::placeholder {
+  color: rgba(242,232,213,0.22);
+  font-style: italic;
+}
+
+.open-btn {
+  margin-top: 24px;
+  padding: 11px 40px;
+  background: transparent;
+  border: 1px solid rgba(184,134,11,0.5);
+  border-radius: 1px;
+  color: var(--gold-lt);
+  font-family: 'IM Fell English', 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-style: italic;
+  letter-spacing: 0.18em;
+  cursor: pointer;
+  transition: all 0.35s;
+  position: relative;
+  overflow: hidden;
+}
+.open-btn::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(184,134,11,0.08), rgba(184,134,11,0.16));
+  opacity: 0; transition: opacity 0.3s;
+}
+.open-btn:hover { border-color: rgba(184,134,11,0.85); color: #e8c060; box-shadow: 0 0 24px rgba(184,134,11,0.2); }
+.open-btn:hover::before { opacity: 1; }
+.open-btn:disabled { opacity: 0.38; cursor: not-allowed; }
+
+/* ─── Book Wrapper ─── */
+.book-scene {
+  position: relative; z-index: 10;
+  margin: 52px auto 20px;
+  display: none;
+  --bw: 720px;
+  --bh: 460px;
+}
+.book-scene.visible { display: block; }
+
+/* ─── 3D perspective container ─── */
+.book-3d {
+  width: var(--bw);
+  height: var(--bh);
+  position: relative;
+  perspective: 2000px;
+}
+
+/* ─── Book body ─── */
+.book-body {
+  width: 100%; height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateX(6deg) rotateY(-2deg);
+  transition: transform 0.6s ease;
+}
+
+/* Bottom shadow */
+.book-shadow {
+  position: absolute;
+  bottom: -38px; left: 5%; right: 5%;
+  height: 36px;
+  background: radial-gradient(ellipse, rgba(0,0,0,0.6) 0%, transparent 72%);
+  filter: blur(10px);
+}
+
+/* ─── Cover (back face) — closed look ─── */
+.book-cover-back {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(160deg, var(--cover-lt) 0%, var(--cover) 60%);
+  border-radius: 2px 6px 6px 2px;
+  transform: translateZ(-4px);
+}
+
+/* ─── Spine ─── */
+.book-spine {
+  position: absolute;
+  left: calc(50% - 12px);
+  top: 0; bottom: 0;
+  width: 24px;
+  background: linear-gradient(to right,
+    var(--spine-dark) 0%,
+    var(--spine-mid) 30%,
+    #6b4020 50%,
+    var(--spine-mid) 70%,
+    var(--spine-dark) 100%);
+  z-index: 30;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.5), -2px 0 8px rgba(0,0,0,0.5);
+}
+.spine-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 9.5px;
+  letter-spacing: 0.35em;
+  color: rgba(212,168,67,0.65);
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* ─── Pages ─── */
+.page {
+  position: absolute;
+  top: 0; height: 100%;
+  width: calc(50% - 12px);
+  background: var(--parchment);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 36px 30px 44px;
+  overflow: hidden;
+}
+
+/* Aged paper texture */
+.page::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg, transparent, transparent 29px, rgba(90,60,20,0.04) 29px, rgba(90,60,20,0.04) 30px);
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+/* Foxing spots (age marks) */
+.page::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(ellipse 8px 6px at 18% 22%, rgba(120,80,30,0.06) 0%, transparent 100%),
+    radial-gradient(ellipse 5px 7px at 82% 65%, rgba(120,80,30,0.05) 0%, transparent 100%),
+    radial-gradient(ellipse 10px 5px at 40% 88%, rgba(120,80,30,0.04) 0%, transparent 100%),
+    radial-gradient(ellipse 6px 6px at 72% 15%, rgba(120,80,30,0.05) 0%, transparent 100%),
+    radial-gradient(ellipse 4px 8px at 25% 72%, rgba(120,80,30,0.04) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.page-left {
+  left: 0;
+  border-radius: 4px 0 0 4px;
+  box-shadow: inset -8px 0 20px rgba(0,0,0,0.1), 4px 0 12px rgba(0,0,0,0.15);
+}
+.page-right {
+  right: 0;
+  border-radius: 0 4px 4px 4px;
+  box-shadow: inset 8px 0 20px rgba(0,0,0,0.1), -4px 0 12px rgba(0,0,0,0.12);
+}
+
+/* Gutter shadow */
+.page-left::before { background-image:
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E"),
+  repeating-linear-gradient(0deg, transparent, transparent 29px, rgba(90,60,20,0.04) 29px, rgba(90,60,20,0.04) 30px),
+  linear-gradient(to left, rgba(0,0,0,0.06) 0%, transparent 15%);
+}
+.page-right::before { background-image:
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E"),
+  repeating-linear-gradient(0deg, transparent, transparent 29px, rgba(90,60,20,0.04) 29px, rgba(90,60,20,0.04) 30px),
+  linear-gradient(to right, rgba(0,0,0,0.06) 0%, transparent 15%);
+}
+
+/* Page number */
+.page-num {
+  position: absolute;
+  bottom: 14px;
+  font-family: 'IM Fell English', serif;
+  font-size: 0.7rem;
+  color: rgba(74,56,32,0.4);
+  letter-spacing: 0.12em;
+  font-style: italic;
+  z-index: 2;
+}
+
+/* ─── Left page content ─── */
+.left-content {
+  position: relative; z-index: 2;
+  text-align: center;
+  width: 100%;
+}
+
+.left-ornament {
+  font-family: 'Pinyon Script', cursive;
+  font-size: 3.8rem;
+  color: rgba(74,56,32,0.12);
+  line-height: 1;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.question-on-page {
+  font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  line-height: 1.85;
+  color: var(--ink-faded);
+  max-width: 200px;
+  margin: 0 auto;
+}
+
+/* ─── Right page content ─── */
+.right-content {
+  position: relative; z-index: 2;
+  text-align: center;
+  width: 100%;
+}
+
+.answer-ornament-top {
+  font-family: 'IM Fell English', serif;
+  color: rgba(74,56,32,0.28);
+  font-size: 1rem;
+  letter-spacing: 0.5em;
+  margin-bottom: 18px;
+  display: block;
+}
+
+.answer-main {
+  font-family: 'Pinyon Script', cursive;
+  font-size: clamp(1.4rem, 3.2vw, 2rem);
+  color: var(--ink);
+  line-height: 1.25;
+  margin-bottom: 10px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.08);
+}
+
+.answer-divider {
+  display: flex; align-items: center; gap: 8px;
+  margin: 8px auto;
+  max-width: 160px;
+}
+.answer-divider::before, .answer-divider::after {
+  content: ''; flex: 1; height: 1px;
+  background: rgba(74,56,32,0.2);
+}
+.answer-divider span { color: rgba(74,56,32,0.3); font-size: 0.6rem; }
+
+.answer-sub {
+  font-family: 'IM Fell English', 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.78rem;
+  color: rgba(74,56,32,0.52);
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+}
+
+/* ─── Flip animation ─── */
+.flip-wrapper {
+  position: absolute;
+  top: 0;
+  width: calc(50% - 12px);
+  height: 100%;
+  transform-style: preserve-3d;
+  z-index: 20;
+  pointer-events: none;
+  transition: none;
+}
+.flip-wrapper.left  { left: 0;  transform-origin: right center; }
+.flip-wrapper.right { right: 0; transform-origin: left center; }
+
+.flip-wrapper.animating {
+  pointer-events: none;
+  transition: transform 0.65s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+}
+.flip-wrapper.left.fly  { transform: rotateY(-180deg); }
+.flip-wrapper.right.fly { transform: rotateY(180deg); }
+
+.flip-face {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  background: var(--parchment2);
+  overflow: hidden;
+}
+.flip-face.front { border-radius: 4px 0 0 4px; }
+.flip-face.back  {
+  border-radius: 0 4px 4px 4px;
+  transform: rotateY(180deg);
+}
+/* aged texture on flip faces too */
+.flip-face::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg, transparent, transparent 29px, rgba(90,60,20,0.04) 29px, rgba(90,60,20,0.04) 30px);
+  pointer-events: none;
+}
+
+/* Page curl hint on hover */
+.page-right:hover .page-curl { opacity: 1; }
+.page-curl {
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 0 0 28px 28px;
+  border-color: transparent transparent rgba(200,180,140,0.5) transparent;
+  opacity: 0.3; pointer-events: none;
+  transition: opacity 0.3s;
+  filter: drop-shadow(-2px -2px 3px rgba(0,0,0,0.1));
+}
+
+/* ─── Nav buttons ─── */
+.nav-btn {
+  position: absolute;
+  top: 50%; transform: translateY(-50%);
+  width: 38px; height: 90px;
+  background: rgba(184,134,11,0.07);
+  border: 1px solid rgba(184,134,11,0.2);
+  border-radius: 2px;
+  color: rgba(212,168,67,0.55);
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: all 0.25s;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 40;
+  font-family: 'Cormorant Garamond', serif;
+}
+.nav-btn:hover { background: rgba(184,134,11,0.18); color: var(--gold-lt); border-color: rgba(184,134,11,0.45); }
+.nav-btn.prev { left: -58px; }
+.nav-btn.next { right: -58px; }
+
+/* ─── Confirm button ─── */
+.confirm-btn-wrap {
+  position: absolute;
+  bottom: -72px; left: 50%; transform: translateX(-50%);
+  text-align: center;
+  z-index: 40;
+  white-space: nowrap;
+}
+.confirm-btn {
+  font-family: 'IM Fell English', 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.88rem;
+  letter-spacing: 0.14em;
+  color: rgba(212,168,67,0.75);
+  border: 1px solid rgba(184,134,11,0.35);
+  background: transparent;
+  padding: 9px 26px;
+  cursor: pointer;
+  border-radius: 1px;
+  transition: all 0.3s;
+}
+.confirm-btn:hover { color: var(--gold-lt); border-color: rgba(184,134,11,0.6); background: rgba(184,134,11,0.08); }
+
+.page-counter {
+  display: block;
+  margin-top: 8px;
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  color: rgba(184,134,11,0.35);
+}
+
+/* Flip hint */
+.flip-hint {
+  position: absolute;
+  bottom: -100px; left: 50%; transform: translateX(-50%);
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  color: rgba(184,134,11,0.4);
+  animation: breathe 2.8s ease-in-out infinite;
+  white-space: nowrap;
+  pointer-events: none;
+}
+@keyframes breathe { 0%,100%{opacity:0.4} 50%{opacity:0.85} }
+
+/* ─── Interpretation Section ─── */
+.interp-section {
+  position: relative; z-index: 10;
+  max-width: 580px; width: 100%;
+  padding: 24px 20px 80px;
+  display: none;
+}
+.interp-section.visible { display: block; }
+
+.interp-card {
+  background: rgba(242,232,213,0.035);
+  border: 1px solid rgba(184,134,11,0.18);
+  padding: 32px 36px;
+  position: relative;
+}
+
+/* Top decorative rule */
+.interp-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold), transparent);
+  opacity: 0.5;
+}
+
+.interp-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 20px;
+}
+.interp-header span {
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: 0.75rem;
+  letter-spacing: 0.28em;
+  color: rgba(184,134,11,0.55);
+  text-transform: uppercase;
+}
+.interp-header::after {
+  content: ''; flex: 1; height: 1px;
+  background: rgba(184,134,11,0.12);
+}
+
+.interp-text {
+  font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+  font-size: 1.02rem;
+  line-height: 2;
+  color: rgba(242,232,213,0.82);
+  min-height: 80px;
+}
+
+/* Streaming cursor */
+.cursor {
+  display: inline-block; width: 1.5px; height: 1.1em;
+  background: var(--gold-lt);
+  vertical-align: text-bottom;
+  animation: blink 0.85s step-end infinite;
+  margin-left: 1px;
+  border-radius: 1px;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* Fade-in for interpretation paragraphs */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.interp-para {
+  opacity: 0;
+  animation: fadeUp 0.7s ease forwards;
+}
+.interp-para + .interp-para { margin-top: 1.1em; }
+
+.interp-footer {
+  display: flex; gap: 12px;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(184,134,11,0.1);
+}
+.ghost-btn {
+  font-family: 'IM Fell English', 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  color: rgba(184,134,11,0.6);
+  border: 1px solid rgba(184,134,11,0.22);
+  background: transparent;
+  padding: 7px 18px;
+  cursor: pointer;
+  border-radius: 1px;
+  transition: all 0.25s;
+}
+.ghost-btn:hover { color: var(--gold-lt); border-color: rgba(184,134,11,0.45); background: rgba(184,134,11,0.07); }
+
+/* ─── Loading dots ─── */
+.dots span {
+  display: inline-block;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--gold);
+  margin: 0 3px;
+  animation: dot 1.3s ease-in-out infinite;
+}
+.dots span:nth-child(2){animation-delay:.15s}
+.dots span:nth-child(3){animation-delay:.3s}
+@keyframes dot { 0%,80%,100%{transform:scale(.55);opacity:.35} 40%{transform:scale(1);opacity:1} }
+
+/* ─── Toast ─── */
+.api-row {
+  margin-top: 18px;
+  text-align: center;
+}
+.api-toggle {
+  background: transparent;
+  border: none;
+  color: rgba(184,134,11,0.35);
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: color 0.25s;
+  padding: 4px 0;
+}
+.api-toggle:hover { color: rgba(184,134,11,0.65); }
+.api-fields {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.api-select {
+  background: rgba(10,7,5,0.8);
+  border: 1px solid rgba(184,134,11,0.25);
+  color: rgba(242,232,213,0.65);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.8rem;
+  padding: 5px 8px;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+.api-key-input {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(184,134,11,0.22);
+  border-radius: 2px;
+  padding: 5px 10px;
+  color: rgba(242,232,213,0.7);
+  font-size: 0.78rem;
+  width: 220px;
+  outline: none;
+  font-family: monospace;
+}
+.api-key-input:focus { border-color: rgba(184,134,11,0.5); }
+.api-help-link {
+  color: rgba(184,134,11,0.45);
+  font-size: 0.73rem;
+  text-decoration: none;
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+.api-help-link:hover { color: rgba(184,134,11,0.75); }
+
+/* ─── Toast ─── */
+.toast {
+  position: fixed; bottom: 28px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: rgba(20,12,4,0.96);
+  border: 1px solid rgba(184,134,11,0.3);
+  color: var(--parchment);
+  padding: 9px 22px;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.88rem;
+  z-index: 1000;
+  transition: transform 0.3s ease;
+  border-radius: 1px;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ─── Responsive ─── */
+@media (max-width: 800px) {
+  .book-scene { --bw: min(98vw, 520px); --bh: 360px; }
+  .nav-btn.prev { left: 2px; }
+  .nav-btn.next { right: 2px; }
+  .page { padding: 24px 16px 36px; }
+}
+@media (max-width: 480px) {
+  .book-scene { --bw: 98vw; --bh: 300px; }
+  .answer-main { font-size: 1.7rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+
+<header>
+  <div class="title-main">答案之书</div>
+  <div class="title-sub">The Book of Answers</div>
+  <div class="header-rule"><span>✦</span></div>
+</header>
+
+<!-- Question -->
+<section class="question-section">
+  <div class="q-label">在心中默想你的问题，然后翻开这本书</div>
+  <textarea class="question-input" id="questionInput"
+    placeholder="写下你的问题……或只是在心中默念" rows="2"></textarea>
+  <br>
+  <button class="open-btn" id="openBtn" onclick="openBook()">✦ &nbsp;翻开这本书</button>
+
+  <!-- Optional API config -->
+  <div class="api-row" id="apiRow">
+    <button class="api-toggle" onclick="toggleApiConfig()">⚙ 接入 AI 解读（可选）</button>
+    <div class="api-fields" id="apiFields" style="display:none;">
+      <select id="apiTypeSelect" class="api-select">
+        <option value="siliconflow">SiliconFlow（推荐·中国）</option>
+        <option value="gemini">Gemini（Google）</option>
+      </select>
+      <input type="password" id="apiKeyInput" class="api-key-input" placeholder="粘贴你的 API Key…" autocomplete="off">
+      <a id="apiHelpLink" href="https://cloud.siliconflow.cn/account/ak" target="_blank" class="api-help-link">免费获取 →</a>
+    </div>
+  </div>
+</section>
+
+<!-- Book -->
+<div class="book-scene" id="bookScene">
+  <div class="book-3d">
+    <div class="book-body" id="bookBody">
+
+      <!-- Static back cover texture -->
+      <div class="book-cover-back"></div>
+
+      <!-- Spine -->
+      <div class="book-spine">
+        <div class="spine-text">答案之书 · The Book of Answers</div>
+      </div>
+
+      <!-- Left page -->
+      <div class="page page-left" id="pageLeft">
+        <div class="left-content">
+          <span class="left-ornament">?</span>
+          <p class="question-on-page" id="questionOnPage">你的问题将显示于此</p>
+        </div>
+        <span class="page-num" id="leftNum">i</span>
+      </div>
+
+      <!-- Right page -->
+      <div class="page page-right" id="pageRight">
+        <div class="page-curl"></div>
+        <div class="right-content">
+          <span class="answer-ornament-top">— ✦ —</span>
+          <div class="answer-main" id="answerMain">—</div>
+          <div class="answer-divider"><span>✦</span></div>
+          <div class="answer-sub" id="answerSub"></div>
+        </div>
+        <span class="page-num" id="rightNum">1</span>
+      </div>
+
+      <!-- Flip animation layer -->
+      <div class="flip-wrapper left"  id="flipLeft"></div>
+      <div class="flip-wrapper right" id="flipRight"></div>
+
+      <!-- Nav -->
+      <button class="nav-btn prev" onclick="turnPage(-1)">‹</button>
+      <button class="nav-btn next" onclick="turnPage(1)">›</button>
+
+    </div>
+
+    <!-- Below-book elements -->
+    <div class="book-shadow"></div>
+    <div class="flip-hint" id="flipHint">点击右半页翻向下一页 · 左半页翻回 · 或用键盘箭头</div>
+
+    <!-- Confirm wrap (appended by JS) -->
+    <div class="confirm-btn-wrap" id="confirmWrap" style="display:none;">
+      <button class="confirm-btn" onclick="confirmAnswer()">✦ &nbsp;就是这一页 &nbsp;— &nbsp;解读我的答案</button>
+      <span class="page-counter" id="pageCounter">第 1 页 · 共 138 页</span>
+    </div>
+  </div>
+</div>
+
+<!-- AI Interpretation -->
+<section class="interp-section" id="interpSection">
+  <div class="interp-card">
+    <div class="interp-header">
+      <span>解 读</span>
+    </div>
+    <div class="interp-text" id="interpText">
+      <span class="dots"><span></span><span></span><span></span></span>
+    </div>
+    <div class="interp-footer">
+      <button class="ghost-btn" onclick="reinterpret()">重新解读</button>
+      <button class="ghost-btn" onclick="askAgain()">换一个问题</button>
+    </div>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════
+//  答案词库 138 条
+// ═══════════════════════
+const ANSWERS = [
+  { zh:"是的",            en:"Yes — trust what you feel." },
+  { zh:"全力以赴",        en:"Give it everything you have." },
+  { zh:"Now is the time", en:"现在，就是最好的时机。" },
+  { zh:"相信你的直觉",    en:"Your intuition knows the way." },
+  { zh:"大胆去做",        en:"Dare to begin." },
+  { zh:"前方是开阔地",    en:"The road ahead opens up." },
+  { zh:"值得一试",        en:"It's worth the attempt." },
+  { zh:"Yes, absolutely", en:"毫无疑问，去做吧。" },
+  { zh:"顺势而为",        en:"Align with the current." },
+  { zh:"放手一搏",        en:"Take the leap." },
+  { zh:"答案是肯定的",    en:"The answer is yes." },
+  { zh:"继续前进",        en:"Keep moving forward." },
+  { zh:"Go for it",       en:"去吧，此刻最好。" },
+  { zh:"你已经准备好了",  en:"You are more ready than you think." },
+  { zh:"这条路是对的",    en:"You are on the right path." },
+  { zh:"接受这份邀请",    en:"Accept the invitation life is offering." },
+  { zh:"Embrace it",      en:"张开双臂，迎接它。" },
+  { zh:"还不是时候",      en:"Not yet — patience is wisdom." },
+  { zh:"放弃这个念头",    en:"Let this one go." },
+  { zh:"暂时搁置",        en:"Set it aside for now." },
+  { zh:"No, not this way",en:"这条路走不通，换一换。" },
+  { zh:"三思而后行",      en:"Pause, reflect, then decide." },
+  { zh:"此刻不宜行动",    en:"This is not the moment to act." },
+  { zh:"Wait a little longer", en:"再等等，时机会更好。" },
+  { zh:"先退一步",        en:"Step back and see the full picture." },
+  { zh:"重新考虑",        en:"Reconsider with fresh eyes." },
+  { zh:"这件事可以放下",  en:"It's okay to release this." },
+  { zh:"不必勉强",        en:"Don't force what isn't ready." },
+  { zh:"保持现状",        en:"Let things remain as they are for now." },
+  { zh:"Not yet, but soon",en:"时候还没到，但不远了。" },
+  { zh:"换个角度看",      en:"Shift your perspective." },
+  { zh:"先等等",          en:"Sit with it a little longer." },
+  { zh:"问问身边的人",    en:"Seek counsel from someone you trust." },
+  { zh:"答案在你心中",    en:"The answer lives within you." },
+  { zh:"顺其自然",        en:"Let things unfold naturally." },
+  { zh:"Look inward",     en:"向内寻找，那里有你要的答案。" },
+  { zh:"听听沉默的声音",  en:"Listen to what the silence is telling you." },
+  { zh:"一步一个脚印",    en:"One step at a time." },
+  { zh:"Return to basics",en:"回到最初，事情会更清晰。" },
+  { zh:"你已经知道了",    en:"Deep down, you already know." },
+  { zh:"观察，而非判断",  en:"Observe without judgment." },
+  { zh:"Stay curious",    en:"保持好奇，答案自会显现。" },
+  { zh:"慢下来",          en:"Slow down — clarity comes in stillness." },
+  { zh:"Be patient with yourself", en:"给自己一点时间。" },
+  { zh:"专注当下",        en:"Be fully present in this moment." },
+  { zh:"This too shall pass", en:"这一切终将过去。" },
+  { zh:"寻求平衡",        en:"Find the balance between the two." },
+  { zh:"Trust the process",en:"信任这个过程，它有它的节奏。" },
+  { zh:"放下执念",        en:"Release your attachment to the outcome." },
+  { zh:"Let go and trust",en:"放手，然后相信。" },
+  { zh:"从小处开始",      en:"Start small — but start." },
+  { zh:"Make the first move", en:"迈出第一步，其余的会跟上。" },
+  { zh:"说出来",          en:"Say it out loud — words have power." },
+  { zh:"写下来",          en:"Put it in writing." },
+  { zh:"动身吧",          en:"It's time to get moving." },
+  { zh:"Break it down",   en:"把它拆解成小步骤，逐一完成。" },
+  { zh:"先做最难的那件事",en:"Tackle the hardest thing first." },
+  { zh:"Commit fully",    en:"全心投入，而非半途而废。" },
+  { zh:"联系那个人",      en:"Reach out to that person." },
+  { zh:"Create something",en:"动手创造，而非空想。" },
+  { zh:"整理你的空间",    en:"Clear the space, clear the mind." },
+  { zh:"Set the intention",en:"先明确意图，行动随之而来。" },
+  { zh:"真诚以待",        en:"Be honest — with them, and with yourself." },
+  { zh:"给出更多空间",    en:"Give it — and them — more room to breathe." },
+  { zh:"Speak from the heart", en:"用真心说话。" },
+  { zh:"倾听，而非等待说话", en:"Listen deeply, not just to reply." },
+  { zh:"这段关系值得珍惜",en:"This connection is worth tending to." },
+  { zh:"设立边界",        en:"It's okay to set boundaries." },
+  { zh:"Let them in",     en:"允许他人靠近你。" },
+  { zh:"宽恕是给自己的礼物", en:"Forgiveness is a gift to yourself." },
+  { zh:"Don't compare",   en:"停止比较，专注于你自己的路。" },
+  { zh:"表达你的感激",    en:"Express your gratitude — today." },
+  { zh:"Independence serves you here", en:"此时，独立是你的力量。" },
+  { zh:"Collaborate",     en:"这件事，需要合力完成。" },
+  { zh:"休息是生产力",    en:"Rest is not laziness — it's wisdom." },
+  { zh:"You are enough",  en:"你已经足够好了。" },
+  { zh:"接受不确定",      en:"Uncertainty is not the enemy." },
+  { zh:"Breathe",         en:"先深呼吸。答案自会浮现。" },
+  { zh:"你比你想象的更强",en:"You are stronger than you think." },
+  { zh:"Be gentle with yourself", en:"对自己温柔一点。" },
+  { zh:"恐惧是信号，不是命令", en:"Fear is information, not instruction." },
+  { zh:"Celebrate small wins", en:"每一个小小的进步，都值得庆祝。" },
+  { zh:"你正在成长",      en:"This difficulty is part of your growth." },
+  { zh:"Don't overthink", en:"想太多了。收回来，感受一下。" },
+  { zh:"允许自己感受",    en:"Let yourself feel what you're feeling." },
+  { zh:"Choose peace",    en:"选择平静，它比正确更重要。" },
+  { zh:"时机将会显现",    en:"The right moment will reveal itself." },
+  { zh:"Everything is aligning", en:"一切都在悄悄向好的方向排列。" },
+  { zh:"这只是一个转折点",en:"This is merely a turning point." },
+  { zh:"The universe is listening", en:"你的意图已被听见。" },
+  { zh:"此刻正是转机",    en:"This moment holds a hidden opportunity." },
+  { zh:"Change is coming",en:"改变正在靠近，准备好迎接它。" },
+  { zh:"比你预期的更快",  en:"Sooner than you expect." },
+  { zh:"Cycles are turning", en:"一个阶段结束，新的正在开始。" },
+  { zh:"The tide is turning", en:"潮水正在转向对你有利的方向。" },
+  { zh:"在适当的时候",    en:"At exactly the right time." },
+  { zh:"失败是数据，不是终点", en:"Failure is feedback, not a final verdict." },
+  { zh:"Ask better questions", en:"提出更好的问题，你会得到更好的答案。" },
+  { zh:"知识是你的护盾",  en:"Seek to learn before you act." },
+  { zh:"Your past prepared you", en:"你的过去，是为了让你走到这一步。" },
+  { zh:"保持开放的心",    en:"Keep your mind open to new information." },
+  { zh:"Wisdom comes from experience", en:"慢下来，让这段经历教导你。" },
+  { zh:"教导别人，你也会明白", en:"Teach it — and you'll understand it." },
+  { zh:"Read between the lines", en:"细心观察表象之下的东西。" },
+  { zh:"Be bold",         en:"大胆一点。世界不因谨慎而改变。" },
+  { zh:"你的想法值得被实现", en:"Your vision deserves to become real." },
+  { zh:"Reinvent yourself",en:"是时候重新定义你是谁了。" },
+  { zh:"创造，而非等待灵感", en:"Create — inspiration follows action." },
+  { zh:"Think bigger",    en:"把格局打开，再想一想。" },
+  { zh:"你的声音很重要",  en:"Your voice matters. Use it." },
+  { zh:"Do it differently",en:"换个方式，打破习惯的框架。" },
+  { zh:"Dream, then build",en:"先做梦，再建造。" },
+  { zh:"Some things cannot be controlled", en:"有些事，不是你该掌控的。" },
+  { zh:"接受这一刻本来的样子", en:"Accept this moment as it is." },
+  { zh:"Let the old story end", en:"让旧的故事结束，新的才能开始。" },
+  { zh:"Surrender gracefully", en:"优雅地放手，不等于失败。" },
+  { zh:"它完成了它的使命",en:"It has served its purpose." },
+  { zh:"释放，然后前行",  en:"Release it — then walk on." },
+  { zh:"Not everything needs to be fixed", en:"不是所有事情都需要被解决。" },
+  { zh:"允许事情结束",    en:"It's okay to let this end." },
+  { zh:"Trust yourself more", en:"多信任自己一点点。" },
+  { zh:"你走在正确的路上",en:"You are on the right track." },
+  { zh:"Be here, fully",  en:"完全地活在这一刻。" },
+  { zh:"Something better awaits", en:"更好的正在等待你。" },
+  { zh:"坚持下去",        en:"Persist — the breakthrough is near." },
+  { zh:"Rest, then return",en:"先休息，然后重新出发。" },
+  { zh:"You have what it takes", en:"你有你所需要的一切。" },
+  { zh:"这次，选择快乐",  en:"This time, choose joy." },
+  { zh:"Align your actions with your values", en:"让行动与你真正的价值观一致。" },
+  { zh:"答案比你想的简单",en:"The answer is simpler than you think." },
+  { zh:"停下来，感受一下",en:"Stop. Just feel it for a moment." },
+  { zh:"You already began",en:"你已经开始了，只是还没意识到。" },
+  { zh:"明天会有新的光",  en:"Tomorrow brings new light." },
+  { zh:"Be the change",   en:"成为你希望看到的那个改变。" },
+];
+
+// ═══════════════════════
+//  State
+// ═══════════════════════
+let page = 0;
+let question = '';
+let flipping = false;
+let opened = false;
+let streaming = false;
+
+// ═══════════════════════
+//  Open book
+// ═══════════════════════
+function openBook() {
+  question = document.getElementById('questionInput').value.trim();
+  if (!question) { showToast('请先写下你的问题，或在心中默念后点击翻开。'); return; }
+
+  page = Math.floor(Math.random() * ANSWERS.length);
+  opened = true;
+
+  renderPages();
+
+  const scene = document.getElementById('bookScene');
+  scene.classList.add('visible');
+  document.getElementById('openBtn').textContent = '✦  重新翻开';
+  document.getElementById('interpSection').classList.remove('visible');
+  document.getElementById('confirmWrap').style.display = 'block';
+  document.getElementById('flipHint').style.display = 'block';
+
+  setTimeout(() => scene.scrollIntoView({ behavior:'smooth', block:'center' }), 80);
+}
+
+// ═══════════════════════
+//  Render pages
+// ═══════════════════════
+function renderPages() {
+  const a = ANSWERS[page];
+  document.getElementById('questionOnPage').textContent =
+    question.length > 110 ? question.slice(0,108)+'…' : question;
+  document.getElementById('answerMain').textContent = a.zh;
+  document.getElementById('answerSub').textContent  = a.en;
+  document.getElementById('rightNum').textContent   = page + 1;
+  document.getElementById('pageCounter').textContent =
+    `第 ${page+1} 页 · 共 ${ANSWERS.length} 页`;
+}
+
+// ═══════════════════════
+//  Flip animation
+// ═══════════════════════
+function turnPage(dir) {
+  if (flipping || !opened) return;
+  flipping = true;
+
+  const wrapId = dir > 0 ? 'flipRight' : 'flipLeft';
+  const flyClass = dir > 0 ? 'fly' : 'fly';
+  const dirClass = dir > 0 ? 'right' : 'left';
+
+  const el = document.getElementById(wrapId);
+
+  // Snapshot current page into flip face front
+  el.innerHTML = `
+    <div class="flip-face front" style="background:var(--parchment2)">
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:28px;">
+        <div style="text-align:center;font-family:'Pinyon Script',cursive;font-size:2.2rem;color:var(--ink);opacity:.85;">
+          ${ANSWERS[page].zh}
+        </div>
+      </div>
+    </div>
+    <div class="flip-face back" style="background:var(--parchment3)"></div>`;
+
+  el.classList.add('animating');
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      el.classList.add('fly');
+    });
+  });
+
+  setTimeout(() => {
+    page = (page + dir + ANSWERS.length) % ANSWERS.length;
+    renderPages();
+    el.classList.remove('animating','fly');
+    el.innerHTML = '';
+    flipping = false;
+  }, 680);
+}
+
+// Click zones on book
+document.addEventListener('DOMContentLoaded', () => {
+  const body = document.getElementById('bookBody');
+  if (!body) return;
+  body.addEventListener('click', (e) => {
+    if (!opened || flipping) return;
+    // Ignore clicks on buttons
+    if (e.target.closest('button')) return;
+    const rect = body.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    if (x > rect.width * 0.56) turnPage(1);
+    else if (x < rect.width * 0.44) turnPage(-1);
+  });
+});
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (!opened) return;
+  if (e.key === 'ArrowRight') turnPage(1);
+  if (e.key === 'ArrowLeft')  turnPage(-1);
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) confirmAnswer();
+});
+
+// ═══════════════════════
+//  Confirm & interpret
+// ═══════════════════════
+function confirmAnswer() {
+  if (!opened) return;
+  const sec = document.getElementById('interpSection');
+  sec.classList.add('visible');
+  document.getElementById('flipHint').style.display = 'none';
+  sec.scrollIntoView({ behavior:'smooth', block:'start' });
+  fetchInterpretation(question, ANSWERS[page].zh, ANSWERS[page].en);
+}
+
+// ═══════════════════════
+//  解读引擎：智能内置 + 可选 SiliconFlow/Gemini API
+// ═══════════════════════
+
+// ─── 问题关键词语义提取 ───
+function analyzeQuestion(q) {
+  const text = q.toLowerCase();
+  return {
+    isChoice:    /选择|决定|要不要|还是|应该|该不该|去还是/.test(q),
+    isPersist:   /坚持|继续|放弃|撑|放手|还要|值不值/.test(q),
+    isRelation:  /关系|朋友|爱人|家人|感情|他|她|他们|分手|在一起/.test(q),
+    isCareer:    /工作|职业|创业|跳槽|事业|项目|方向|钱|收入/.test(q),
+    isFuture:    /未来|前途|会不会|结果|最终|以后|将来/.test(q),
+    isAnxious:   /焦虑|担心|害怕|恐惧|不安|紧张|压力/.test(q),
+    isWait:      /等|还没|时机|时候|准备好|合适/.test(q),
+    isSelf:      /自己|我|我是谁|值得|够不够|能不能/.test(q),
+  };
+}
+
+// ─── 动态内置解读（根据问题+答案组合生成）───
+function getBuiltinInterp(zh, en, question) {
+  const q = analyzeQuestion(question);
+
+  // ── 答案分类 ──
+  const isAffirm  = /是的|全力|Now is|相信|大胆|Go for|Yes|顺势|放手一搏|肯定|继续|准备好|这条路|Embrace|Dream|Be bold|想法值得|坚持|Trust yourself/.test(zh);
+  const isPause   = /还不是|放弃这个|暂时|No, not|三思|不宜行动|Wait|先退|重新考虑|放下|不必勉强|保持现状|Not yet/.test(zh);
+  const isAction  = /从小处|Make the first|说出来|写下来|动身|Break it|最难|Commit|联系那个|Create|整理|Set the/.test(zh);
+  const isRelease = /放下执念|Let go|cannot be|接受这一刻|old story|Surrender|使命|释放，然后|Not everything|允许事情结束/.test(zh);
+  const isInward  = /答案在你|Look inward|听听沉默|顺其自然|慢下来|专注当下|You already|Be here/.test(zh);
+
+  // ── 段落池：[开头, 中间, 结尾]，从每组随机选 ──
+  const openings = [];
+  const middles  = [];
+  const endings  = [];
+
+  // 开头：结合答案词句
+  if (isAffirm) {
+    openings.push(
+      `书给出了「${zh}」。有时候我们追问再三，不是因为真的不知道答案，而是因为还没准备好承担答案带来的改变。`,
+      `「${zh}」——${en} 这不是命运的保证，而是一个邀请：邀请你对已经在心里成型的那个想法，多一点信任。`,
+      `答案落在「${zh}」这页。它不告诉你结果会如何，它只是在说：你此刻的状态，已经足够迈出下一步了。`
+    );
+  } else if (isPause) {
+    openings.push(
+      `书翻到了「${zh}」。这不是"不行"，而是"不是现在"——两者之间，有很大的距离。`,
+      `「${zh}」——${en} 节奏本身也是答案的一部分。有时候按下暂停键，需要比出发更大的勇气。`,
+      `这一页说的是「${zh}」。先停下来，不代表你放弃了，只是意味着：你在等一个更清醒的自己来做决定。`
+    );
+  } else if (isAction) {
+    openings.push(
+      `「${zh}」——这是行动的信号，而不是思考的信号。你或许已经想得够多了，现在缺的是第一步。`,
+      `书选择了「${zh}」。行动本身会带来清晰度，这是单靠思考永远得不到的东西。`,
+      `「${zh}」。完美的计划不存在，但不完美的起步，胜过永远在等待的完美时机。`
+    );
+  } else if (isRelease) {
+    openings.push(
+      `「${zh}」——有些事不是被"解决"的，而是被接受，然后放下的。`,
+      `书给出了「${zh}」。执着的边界，有时候在于：你是在坚持一件事，还是在坚持对它"本该如此"的执念？`,
+      `「${zh}」——${en} 放手不是认输，而是把精力从一个消耗你的地方，收回来，用在你真正能影响的事上。`
+    );
+  } else if (isInward) {
+    openings.push(
+      `「${zh}」——书把问题还给了你。有时候，我们向外寻找答案，是因为害怕面对内心已经知道的那个声音。`,
+      `这一页是「${zh}」。它不是在说"不知道"，而是在说：你其实已经知道了，只是还没承认。`,
+      `「${zh}」——答案不在外部的确认里，而在你静下来之后，第一个浮现的感受里。`
+    );
+  } else {
+    openings.push(
+      `书给出了「${zh}」。有趣的是，这个答案本身并不是终点，而是另一个入口——它把问题还给了你。`,
+      `「${zh}」——${en} 这类答案像一面镜子，映出的不是外部世界的走向，而是你此刻内心真实的状态。`,
+      `落在「${zh}」这页。有时候一个答案的价值，不在于它说了什么，而在于它让你产生了什么反应。`
+    );
+  }
+
+  // 中间：结合问题类型
+  if (q.isChoice) {
+    middles.push(
+      `面对选择，我们最需要的往往不是更多信息，而是对自己判断力的信任。试着问：如果两个选项的结果都一样好，你更想走哪条路上的那段风景？`,
+      `选择的困难，常常不是因为两个选项都不好，而是因为它们指向不同的自己。你更愿意成为哪一个？`,
+      `把两个选项写下来，然后假装已经做了决定A——观察接下来24小时你的感受。那个感受，比任何分析都诚实。`
+    );
+  } else if (q.isPersist) {
+    middles.push(
+      `"坚持"和"执念"的边界，在于：它还在给你力量，还是只在消耗你？诚实地回答这个问题，比任何建议都有用。`,
+      `继续与否，不是意志力的问题，是方向的问题。如果方向是对的，调整策略重新来；如果方向本身就偏了，停下来才是智慧。`,
+      `不妨用一个月的时间观察：这件事在让你变得更好，还是在让你变小？答案会很清晰。`
+    );
+  } else if (q.isRelation) {
+    middles.push(
+      `关系里最难的事，是分清楚：你在意的，是这个人，还是你们之间那个你最想要的版本？两者的答案，往往通向不同的方向。`,
+      `对关系的判断，有一个简单的测试：去掉所有"应该"之后，你还想和这个人在一起吗？`,
+      `有时候我们拉扯，不是因为感情不够，而是因为没有人愿意先承认自己的真实需要。率先说出来，也许会改变一切。`
+    );
+  } else if (q.isCareer) {
+    middles.push(
+      `关于工作和事业的决定，有一个值得问自己的问题：五年后的你，会感谢今天做出这个选择的自己吗？`,
+      `钱、意义、成长——当这三者不能同时满足时，你最不愿意牺牲的是哪一个？那个答案，就是你真正的优先级。`,
+      `不要把"现在的我能不能做到"和"持续努力的我能不能做到"混为一谈。能力是动态的，方向才是最需要确认的。`
+    );
+  } else if (q.isAnxious) {
+    middles.push(
+      `焦虑往往是一种信号，不是命令。它在说：这件事对你很重要。先承认这一点，然后问自己：我现在能做的最小的一件事是什么？`,
+      `试着把所有担心的事写下来，然后分成两列："我能影响的"和"我无法控制的"。把注意力只放在第一列上。`,
+      `当我们焦虑时，大脑会放大最坏的可能性。试着真实地问自己：最坏的情况是什么？如果它发生了，我能应对吗？`
+    );
+  } else if (q.isSelf) {
+    middles.push(
+      `关于自我价值的问题，有一个值得注意的陷阱：我们习惯用"够不够"来衡量自己，却忘了问"够不够"是谁定义的。`,
+      `你不需要成为某个标准版本的自己，才配拥有你想要的东西。把"值不值得"的问题暂时搁置，先问：我想要什么？`,
+      `对自己最诚实的时刻，往往不是在思考时，而是在某个清晨刚醒来，还没开始评判之前的那一秒。那个感受是什么？`
+    );
+  } else {
+    middles.push(
+      `有时候一个问题之所以难以回答，是因为它背后藏着另一个更深的问题。试着问：如果这件事解决了，我真正得到的是什么？`,
+      `不妨试一个简单的练习：把这个问题告诉你最信任的朋友，听听他们会说什么。有时候，旁观者能看见我们自己看不见的角落。`,
+      `把这件事放下来三天，既不去想，也不做决定。三天后，第一个浮现的感受往往是最真实的指引。`
+    );
+  }
+
+  // 结尾：留白问句
+  if (q.isFuture) {
+    endings.push(
+      `如果结果已经注定是好的，你今天会选择做什么？`,
+      `你最担心的那个未来，发生的概率真的有你想象的那么高吗？`,
+      `三年后的你回头看今天，最希望自己做了什么决定？`
+    );
+  } else if (q.isWait) {
+    endings.push(
+      `你在等一个"准备好"的时刻——那个时刻，是真的会来，还是只是你给自己的一个缓冲？`,
+      `如果不是在等时机，而是在等勇气，你需要的那点勇气，从哪里来？`,
+      `再等下去，你愿意失去什么？`
+    );
+  } else {
+    endings.push(
+      `如果今天就是答案揭晓的日子，你希望自己做了什么？`,
+      `把这件事中最让你纠结的一个点写下来——那个点，往往才是真正需要被回答的问题。`,
+      `如果不担心任何人的看法，你的答案会是什么？`
+    );
+  }
+
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  return [pick(openings), pick(middles), pick(endings)].join('\n\n');
+}
+
+// ─── API 调用 (SiliconFlow 或 Gemini，用户可选填) ───
+async function callLLMApi(apiKey, apiType, question, ansZh, ansEn) {
+  const system = `你是《答案之书》的解读者。温和理性的引导风格，中英文自然混用，3段约150字。
+每段聚焦一个层次：第一段结合用户的具体问题和答案词句提出视角，第二段给出具体建议，第三段是一个留给对方思考的问句。
+不要套话结尾，不要保证结果。`;
+  const prompt = `问题：${question}\n答案之书的答案：「${ansZh}」（${ansEn}）\n\n请针对这个具体问题给出你的解读。`;
+
+  if (apiType === 'siliconflow') {
+    const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: 'Qwen/Qwen2.5-7B-Instruct',
+        messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
+        max_tokens: 400, temperature: 0.85, stream: false
+      })
+    });
+    if (!res.ok) { const e = await res.json(); throw new Error(e?.message || `HTTP ${res.status}`); }
+    const d = await res.json();
+    return d?.choices?.[0]?.message?.content || null;
+  }
+
+  if (apiType === 'gemini') {
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: system + '\n\n' + prompt }] }],
+        generationConfig: { temperature: 0.85, maxOutputTokens: 400 }
+      })
+    });
+    if (!res.ok) { const e = await res.json(); throw new Error(e?.error?.message || `HTTP ${res.status}`); }
+    const d = await res.json();
+    return d?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+  }
+
+  throw new Error('unknown api type');
+}
+
+// ─── 浮现动画渲染 ───
+function renderWithFadeIn(el, text) {
+  const paras = text.split(/\n\n+/).map(p => p.trim()).filter(Boolean);
+  el.innerHTML = '';
+  paras.forEach((para, i) => {
+    const p = document.createElement('p');
+    p.className = 'interp-para';
+    p.style.animationDelay = `${i * 0.32}s`;
+    p.textContent = para;
+    el.appendChild(p);
+  });
+}
+
+// ─── 主入口 ───
+async function fetchInterpretation(q, ansZh, ansEn) {
+  streaming = true;
+  const el = document.getElementById('interpText');
+  el.innerHTML = '<span class="dots"><span></span><span></span><span></span></span>';
+
+  try {
+    const apiKey  = (document.getElementById('apiKeyInput')?.value || '').trim();
+    const apiType = (document.getElementById('apiTypeSelect')?.value || 'siliconflow');
+    let text = null;
+
+    if (apiKey) {
+      try {
+        text = await callLLMApi(apiKey, apiType, q, ansZh, ansEn);
+      } catch(err) {
+        console.warn('API failed, using builtin:', err.message);
+        showToast(`API 调用失败（${err.message}），已使用内置解读`);
+      }
+    }
+
+    // Fallback / default: smart built-in
+    if (!text) {
+      await new Promise(r => setTimeout(r, 500));
+      text = getBuiltinInterp(ansZh, ansEn, q);
+    }
+
+    renderWithFadeIn(el, text);
+    streaming = false;
+
+  } catch(err) {
+    el.innerHTML = `<span style="color:rgba(200,120,100,0.85);">出现错误：${err.message}</span>`;
+    streaming = false;
+  }
+}
+// ═══════════════════════
+//  Buttons
+// ═══════════════════════
+function reinterpret() {
+  if (streaming) return;
+  fetchInterpretation(question, ANSWERS[page].zh, ANSWERS[page].en);
+}
+
+function askAgain() {
+  document.getElementById('interpSection').classList.remove('visible');
+  document.getElementById('bookScene').classList.remove('visible');
+  document.getElementById('confirmWrap').style.display = 'none';
+  opened = false;
+  document.getElementById('questionInput').value = '';
+  document.getElementById('openBtn').textContent = '✦  翻开这本书';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════
+//  API config toggle
+// ═══════════════════════
+function toggleApiConfig() {
+  const fields = document.getElementById('apiFields');
+  const btn    = document.querySelector('.api-toggle');
+  const select = document.getElementById('apiTypeSelect');
+  if (fields.style.display === 'none') {
+    fields.style.display = 'flex';
+    btn.textContent = '⚙ 收起';
+  } else {
+    fields.style.display = 'none';
+    btn.textContent = '⚙ 接入 AI 解读（可选）';
+  }
+}
+
+// Update help link when API type changes
+document.addEventListener('DOMContentLoaded', () => {
+  const sel  = document.getElementById('apiTypeSelect');
+  const link = document.getElementById('apiHelpLink');
+  if (!sel || !link) return;
+  sel.addEventListener('change', () => {
+    link.href = sel.value === 'gemini'
+      ? 'https://aistudio.google.com/app/apikey'
+      : 'https://cloud.siliconflow.cn/account/ak';
+  });
+});
+
+// ═══════════════════════
+//  Toast
+// ═══════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
