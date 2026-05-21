@@ -38,7 +38,11 @@ html { scroll-behavior: smooth; }
 
 body {
   min-height: 100vh;
-  background: radial-gradient(ellipse 80% 60% at 50% 0%, #2a1a08 0%, #0d0803 55%, var(--bg1) 100%);
+  background:
+    radial-gradient(ellipse 70% 45% at 50% 0%, #2d1f00 0%, transparent 65%),
+    radial-gradient(ellipse 50% 30% at 20% 100%, #1a1000 0%, transparent 60%),
+    radial-gradient(ellipse 50% 30% at 80% 100%, #1a0d00 0%, transparent 60%),
+    linear-gradient(160deg, #0a0700 0%, #080600 40%, #0c0800 70%, #060400 100%);
   font-family: 'Cormorant Garamond', 'Noto Serif SC', Georgia, serif;
   color: var(--parchment);
   overflow-x: hidden;
@@ -67,13 +71,13 @@ body {
     radial-gradient(1px 1px at 65% 35%,  rgba(255,220,130,0.45) 0%, transparent 100%),
     radial-gradient(1px 1px at 45% 55%,  rgba(255,220,130,0.25) 0%, transparent 100%);
 }
-/* Candle glow top-center */
+/* Gold radiance top-center */
 .ambient::after {
   content: '';
   position: absolute;
-  top: -100px; left: 50%; transform: translateX(-50%);
-  width: 600px; height: 400px;
-  background: radial-gradient(ellipse, rgba(200,130,20,0.12) 0%, transparent 70%);
+  top: -80px; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 500px;
+  background: radial-gradient(ellipse, rgba(184,134,11,0.18) 0%, rgba(120,80,0,0.07) 40%, transparent 70%);
   pointer-events: none;
 }
 
@@ -89,8 +93,9 @@ header {
   font-size: clamp(3rem, 8vw, 5.2rem);
   color: var(--gold-lt);
   text-shadow:
-    0 0 40px var(--gold-glow),
-    0 0 80px rgba(184,134,11,0.25);
+    0 0 40px rgba(212,168,67,0.75),
+    0 0 90px rgba(184,134,11,0.4),
+    0 0 140px rgba(140,100,0,0.2);
   line-height: 1;
   letter-spacing: 0.02em;
 }
@@ -716,6 +721,66 @@ header {
   .book-scene { --bw: 98vw; --bh: 300px; }
   .answer-main { font-size: 1.7rem; }
 }
+
+/* ─── Music Player ─── */
+.music-btn {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: rgba(10,7,3,0.85);
+  border: 1px solid rgba(184,134,11,0.35);
+  color: rgba(212,168,67,0.7);
+  font-size: 1.1rem;
+  cursor: pointer;
+  z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+}
+.music-btn:hover {
+  border-color: rgba(184,134,11,0.65);
+  color: var(--gold-lt);
+  box-shadow: 0 0 24px rgba(184,134,11,0.2);
+}
+.music-btn.playing { animation: music-pulse 2.5s ease-in-out infinite; }
+@keyframes music-pulse {
+  0%,100% { box-shadow: 0 0 20px rgba(0,0,0,0.5), 0 0 0 0 rgba(184,134,11,0.25); }
+  50%      { box-shadow: 0 0 20px rgba(0,0,0,0.5), 0 0 0 8px rgba(184,134,11,0); }
+}
+.music-label {
+  position: fixed;
+  bottom: 32px; right: 80px;
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  color: rgba(184,134,11,0.4);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s;
+  white-space: nowrap;
+}
+.music-btn:hover ~ .music-label,
+.music-btn.playing ~ .music-label { opacity: 1; }
+
+/* ─── Gold particle shimmer overlay ─── */
+@keyframes shimmer-drift {
+  0%   { transform: translateY(0)   translateX(0)   scale(1);   opacity: 0; }
+  20%  { opacity: 0.6; }
+  80%  { opacity: 0.3; }
+  100% { transform: translateY(-80px) translateX(20px) scale(0.5); opacity: 0; }
+}
+.gold-particle {
+  position: fixed;
+  width: 2px; height: 2px;
+  border-radius: 50%;
+  background: rgba(212,168,67,0.8);
+  pointer-events: none;
+  z-index: 1;
+  animation: shimmer-drift linear infinite;
+}
 </style>
 </head>
 <body>
@@ -821,6 +886,13 @@ header {
     </div>
   </div>
 </section>
+
+<!-- Background music -->
+<audio id="bgMusic" loop preload="none">
+  <source src="https://incompetech.com/music/royalty-free/mp3-royaltyfree/Ossuary%207%20-%20Resolve.mp3" type="audio/mpeg">
+</audio>
+<button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="背景音乐">♪</button>
+<span class="music-label">Ossuary · Kevin MacLeod</span>
 
 <div class="toast" id="toast"></div>
 
@@ -1333,6 +1405,96 @@ function askAgain() {
   document.getElementById('openBtn').textContent = '✦  翻开这本书';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// ═══════════════════════
+//  Music Player
+// ═══════════════════════
+let musicStarted = false;
+
+function toggleMusic() {
+  const audio = document.getElementById('bgMusic');
+  const btn   = document.getElementById('musicBtn');
+  if (!audio) return;
+
+  if (audio.paused) {
+    // Fade in
+    audio.volume = 0;
+    audio.play().then(() => {
+      btn.textContent = '♫';
+      btn.classList.add('playing');
+      let v = 0;
+      const fade = setInterval(() => {
+        v = Math.min(v + 0.02, 0.32); // max volume 32% — subtle background
+        audio.volume = v;
+        if (v >= 0.32) clearInterval(fade);
+      }, 80);
+    }).catch(() => {});
+  } else {
+    // Fade out
+    let v = audio.volume;
+    const fade = setInterval(() => {
+      v = Math.max(v - 0.02, 0);
+      audio.volume = v;
+      if (v <= 0) {
+        audio.pause();
+        clearInterval(fade);
+        btn.textContent = '♪';
+        btn.classList.remove('playing');
+      }
+    }, 60);
+  }
+}
+
+// Auto-start music on first user interaction
+function tryAutoplayMusic() {
+  if (musicStarted) return;
+  musicStarted = true;
+  const audio = document.getElementById('bgMusic');
+  if (!audio) return;
+  audio.volume = 0;
+  audio.play().then(() => {
+    document.getElementById('musicBtn').textContent = '♫';
+    document.getElementById('musicBtn').classList.add('playing');
+    let v = 0;
+    const fade = setInterval(() => {
+      v = Math.min(v + 0.015, 0.28);
+      audio.volume = v;
+      if (v >= 0.28) clearInterval(fade);
+    }, 100);
+  }).catch(() => { musicStarted = false; });
+}
+
+document.addEventListener('click', tryAutoplayMusic, { once: true });
+document.addEventListener('keydown', tryAutoplayMusic, { once: true });
+
+// ─── Gold particles ───
+function spawnParticles() {
+  const count = 12;
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const p = document.createElement('div');
+      p.className = 'gold-particle';
+      p.style.left   = Math.random() * 100 + 'vw';
+      p.style.bottom = (Math.random() * 40 + 5) + 'vh';
+      const dur  = (Math.random() * 6 + 5) + 's';
+      const delay = (Math.random() * 8) + 's';
+      p.style.animationDuration = dur;
+      p.style.animationDelay   = delay;
+      const size = (Math.random() * 2 + 1) + 'px';
+      p.style.width = size; p.style.height = size;
+      p.style.opacity = (Math.random() * 0.5 + 0.2).toString();
+      document.body.appendChild(p);
+      // Remove after animation to avoid DOM bloat
+      setTimeout(() => p.remove(), (parseFloat(dur) + parseFloat(delay)) * 1000 + 1000);
+    }, i * 400);
+  }
+  // Respawn
+  setTimeout(spawnParticles, 15000);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(spawnParticles, 2000);
+});
 
 // ═══════════════════════
 //  API config toggle
